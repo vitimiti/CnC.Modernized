@@ -1,0 +1,25 @@
+<Project>
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" PrivateAssets="All" />
+  </ItemGroup>
+  <Choose>
+    <When Condition="'$(Configuration)' == 'Debug'">
+      <PropertyGroup>
+        <DefineDebug>true</DefineDebug>
+        <DebugSymbols>true</DebugSymbols>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <Optimize>false</Optimize>
+        <DebugType>portable</DebugType>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <DefineDebug>false</DefineDebug>
+        <DebugSymbols>false</DebugSymbols>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <Optimize>true</Optimize>
+        <DebugType>none</DebugType>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+</Project>
