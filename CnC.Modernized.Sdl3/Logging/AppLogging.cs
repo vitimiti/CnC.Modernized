@@ -50,4 +50,7 @@ internal static partial class AppLogging
 
     [LoggerMessage(LogLevel.Debug, "SDL3 logging initialized.")]
     public static partial void Sdl3LoggingInitialized(ILogger logger);
+
+    [LoggerMessage(LogLevel.Debug, "Static logger object set for SDL3 logging use.")]
+    public static partial void StaticLoggerObjectSet(ILogger logger);
 }

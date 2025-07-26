@@ -39,6 +39,11 @@ public class App : IDisposable
         options?.Invoke(_options);
 
         SetLogger(logger);
+        AppLogging.StaticLoggerObjectSet(_logger);
+
+        Initialize();
+
+        AppLogging.ApplicationInitialized(_logger);
     }
 
     private void ReleaseUnmanagedResources()
@@ -193,15 +198,9 @@ public class App : IDisposable
         }
     }
 
-    protected void Initialize()
+    private void Initialize()
     {
         InitializeSdl();
         AppLogging.Sdl3Initialized(_logger);
-    }
-
-    public void Run()
-    {
-        Initialize();
-        AppLogging.ApplicationInitialized(_logger);
     }
 }
