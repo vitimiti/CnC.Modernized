@@ -1,7 +1,7 @@
-# CnC.Modernized.Generals
+# CnC.Modernized
 
 This is a dotnet and modernized implementation of the open-sourced engine from EA Electronics' repository of the Command
-and Conquer: Generals and Command and Conquer: Generals Zero Hour games.
+and Conquer games.
 
 ## Aims
 
