@@ -14,3 +14,10 @@ own, including the original games.
 This project will **NOT** aim to maintain online play compatibility with the original games. This compatibility will not
 actively be broken and will be maintained, as long as it doesn't stop the progress of the modernization and adaptation
 of the original code.
+
+## Projects
+
+### CnC.Modernized.Sdl3
+
+A safe and managed library that imports SDL3 for use with the CnC.Modernized projects. See
+its [readme](CnC.Modernized.Sdl3/README.md) for more information.
