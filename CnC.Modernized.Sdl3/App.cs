@@ -19,6 +19,7 @@
 
 using CnC.Modernized.Sdl3.Logging;
 using CnC.Modernized.Sdl3.Options;
+using CnC.Modernized.Sdl3.Subsystems;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using static CnC.Modernized.Sdl3.Imports.SDL3;
@@ -32,6 +33,15 @@ public class App : IDisposable
 
     private readonly AppOptions _options = new();
     private readonly ILogger _logger;
+
+    public AudioSubsystem Audio => new(_logger, this);
+    public CameraSubsystem Camera => new(_logger, this);
+    public EventsSubsystem EventPump => new(_logger, this);
+    public GamepadSubsystem Gamepad => new(_logger, this);
+    public HapticSubsystem Haptic => new(_logger, this);
+    public JoystickSubsystem Joystick => new(_logger, this);
+    public SensorSubsystem Sensor => new(_logger, this);
+    public VideoSubsystem Video => new(_logger, this);
 
     public App(ILogger logger, Action<AppOptions>? options = null)
     {

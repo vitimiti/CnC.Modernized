@@ -7,7 +7,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.2.0-alpha</Version>
+    <Version>0.3.0-alpha</Version>
     <Title>CnC.Modernized.Sdl3</Title>
     <Authors>Victor Matia &lt;vmatir@outlook.com&gt;</Authors>
     <Description>A library to safely import SDL3 for use with the CnC.Modernized projects.</Description>

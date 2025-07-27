@@ -44,6 +44,15 @@ internal static partial class SDL3
         public static SDL_InitFlags operator ~(SDL_InitFlags value) => new(~value.Value);
     }
 
+    public static SDL_InitFlags SDL_INIT_AUDIO => new(0x00000010U);
+    public static SDL_InitFlags SDL_INIT_VIDEO => new(0x00000020U);
+    public static SDL_InitFlags SDL_INIT_JOYSTICK => new(0x00000200U);
+    public static SDL_InitFlags SDL_INIT_HAPTIC => new(0x00001000U);
+    public static SDL_InitFlags SDL_INIT_GAMEPAD => new(0x00002000U);
+    public static SDL_InitFlags SDL_INIT_EVENTS => new(0x00004000U);
+    public static SDL_InitFlags SDL_INIT_SENSOR => new(0x00008000U);
+    public static SDL_InitFlags SDL_INIT_CAMERA => new(0x00010000U);
+
     [LibraryImport(nameof(SDL3), EntryPoint = nameof(SDL_InitSubSystem))]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     [return: MarshalAs(UnmanagedType.U1)]
@@ -52,6 +61,10 @@ internal static partial class SDL3
     [LibraryImport(nameof(SDL3), EntryPoint = nameof(SDL_QuitSubSystem))]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     public static partial void SDL_QuitSubSystem(SDL_InitFlags flags);
+
+    [LibraryImport(nameof(SDL3), EntryPoint = nameof(SDL_WasInit))]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    public static partial SDL_InitFlags SDL_WasInit(SDL_InitFlags flags);
 
     [LibraryImport(nameof(SDL3), EntryPoint = nameof(SDL_Quit))]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
