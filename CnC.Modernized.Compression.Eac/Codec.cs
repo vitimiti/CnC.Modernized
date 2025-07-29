@@ -17,21 +17,34 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using JetBrains.Annotations;
+using CnC.Modernized.Compression.Eac.Exceptions;
 
-namespace CnC.Modernized.Compression.Eac.Extensions;
+namespace CnC.Modernized.Compression.Eac;
 
-[PublicAPI]
-public static class StringExtensions
+public abstract class Codec : IDisposable
 {
-    public static int GetGimexSignature(this string signature)
-    {
-        var chars = new byte[4];
-        for (var i = 0; i < chars.Length; i++)
-        {
-            chars[i] = i < signature.Length ? (byte)signature[i] : (byte)' ';
-        }
+    public abstract CodexAbout About { get; }
 
-        return chars[0] << 24 | chars[1] << 16 | chars[2] << 8 | chars[3];
+    public abstract bool IsValidFormat(ReadOnlySpan<byte> data);
+    public abstract int GetDecodedSize(ReadOnlySpan<byte> data);
+    public abstract int Decode(Span<byte> destination, ReadOnlySpan<byte> source);
+
+    protected Codec() { }
+
+    protected virtual void Dispose(bool disposing) { }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    public virtual int Encode(
+        Span<byte> destination,
+        ReadOnlySpan<byte> source,
+        ReadOnlySpan<uint> options = default
+    )
+    {
+        throw new UnsupportedOperationException($"Encoding is not supported by {GetType().Name}");
     }
 }

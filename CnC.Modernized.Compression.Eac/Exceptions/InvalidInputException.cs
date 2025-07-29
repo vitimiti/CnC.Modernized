@@ -19,19 +19,16 @@
 
 using JetBrains.Annotations;
 
-namespace CnC.Modernized.Compression.Eac.Extensions;
+namespace CnC.Modernized.Compression.Eac.Exceptions;
 
 [PublicAPI]
-public static class StringExtensions
+public class InvalidInputException : Exception
 {
-    public static int GetGimexSignature(this string signature)
-    {
-        var chars = new byte[4];
-        for (var i = 0; i < chars.Length; i++)
-        {
-            chars[i] = i < signature.Length ? (byte)signature[i] : (byte)' ';
-        }
+    public InvalidInputException() { }
 
-        return chars[0] << 24 | chars[1] << 16 | chars[2] << 8 | chars[3];
-    }
+    public InvalidInputException(string? message)
+        : base(message) { }
+
+    public InvalidInputException(string? message, Exception? innerException)
+        : base(message, innerException) { }
 }

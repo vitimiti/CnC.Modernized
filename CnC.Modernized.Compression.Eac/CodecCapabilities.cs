@@ -19,19 +19,23 @@
 
 using JetBrains.Annotations;
 
-namespace CnC.Modernized.Compression.Eac.Extensions;
+namespace CnC.Modernized.Compression.Eac;
 
 [PublicAPI]
-public static class StringExtensions
+public class CodecCapabilities
 {
-    public static int GetGimexSignature(this string signature)
-    {
-        var chars = new byte[4];
-        for (var i = 0; i < chars.Length; i++)
-        {
-            chars[i] = i < signature.Length ? (byte)signature[i] : (byte)' ';
-        }
+    public bool CanDecode { get; init; }
+    public bool CanEncode { get; init; }
+    public bool SupportsSize32 { get; init; }
 
-        return chars[0] << 24 | chars[1] << 16 | chars[2] << 8 | chars[3];
-    }
+    public static CodecCapabilities FromRaw(uint raw) =>
+        new()
+        {
+            CanDecode = (raw & 0x1) != 0,
+            CanEncode = (raw & 0x2) != 0,
+            SupportsSize32 = (raw & 0x4) != 0,
+        };
+
+    public uint ToRaw() =>
+        (uint)((CanDecode ? 0x1 : 0) | (CanEncode ? 0x2 : 0) | (SupportsSize32 ? 0x4 : 0));
 }

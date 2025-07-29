@@ -19,19 +19,30 @@
 
 using JetBrains.Annotations;
 
-namespace CnC.Modernized.Compression.Eac.Extensions;
+namespace CnC.Modernized.Compression.Eac;
 
 [PublicAPI]
-public static class StringExtensions
+public readonly struct CodecSignature : IEquatable<CodecSignature>
 {
-    public static int GetGimexSignature(this string signature)
+    public CodecSignature(string signature)
     {
-        var chars = new byte[4];
-        for (var i = 0; i < chars.Length; i++)
-        {
-            chars[i] = i < signature.Length ? (byte)signature[i] : (byte)' ';
-        }
-
-        return chars[0] << 24 | chars[1] << 16 | chars[2] << 8 | chars[3];
+        Span<char> chars = [' ', ' ', ' ', ' '];
+        signature.AsSpan()[..Math.Min(signature.Length, 4)].CopyTo(chars);
+        Value = (uint)(chars[0] << 24 | chars[1] << 16 | chars[2] << 8 | chars[3]);
     }
+
+    public uint Value { get; }
+
+    public override string ToString() =>
+        new(new[] { (char)(Value >> 24), (char)(Value >> 16), (char)(Value >> 8), (char)Value });
+
+    public bool Equals(CodecSignature other) => Value == other.Value;
+
+    public override bool Equals(object? obj) => obj is CodecSignature other && Equals(other);
+
+    public override int GetHashCode() => (int)Value;
+
+    public static bool operator ==(CodecSignature left, CodecSignature right) => left.Equals(right);
+
+    public static bool operator !=(CodecSignature left, CodecSignature right) => !(left == right);
 }

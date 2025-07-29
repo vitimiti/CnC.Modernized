@@ -35,7 +35,7 @@ public class GimexInfo(string signature)
     private string _frameName = string.Empty;
     private string _comment = string.Empty;
 
-    public static int Version => 300;
+    public static Version InfoVersion => new(3, 0, 0);
 
     public int Signature { get; } = signature.GetGimexSignature();
     public int CurrentFrame { get; set; }

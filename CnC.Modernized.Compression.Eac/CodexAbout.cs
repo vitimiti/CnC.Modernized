@@ -19,19 +19,16 @@
 
 using JetBrains.Annotations;
 
-namespace CnC.Modernized.Compression.Eac.Extensions;
+namespace CnC.Modernized.Compression.Eac;
 
 [PublicAPI]
-public static class StringExtensions
+public class CodexAbout
 {
-    public static int GetGimexSignature(this string signature)
-    {
-        var chars = new byte[4];
-        for (var i = 0; i < chars.Length; i++)
-        {
-            chars[i] = i < signature.Length ? (byte)signature[i] : (byte)' ';
-        }
-
-        return chars[0] << 24 | chars[1] << 16 | chars[2] << 8 | chars[3];
-    }
+    public required CodecSignature Signature { get; init; }
+    public int Size { get; init; }
+    public Version AboutVersion { get; } = new(2, 0, 0);
+    public required CodecCapabilities Capabilities { get; init; }
+    public required Version Version { get; init; }
+    public required string ShortTypeString { get; init; }
+    public required string LongTypeString { get; init; }
 }
