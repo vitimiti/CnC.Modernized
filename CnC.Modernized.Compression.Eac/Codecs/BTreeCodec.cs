@@ -24,12 +24,19 @@ namespace CnC.Modernized.Compression.Eac.Codecs;
 [PublicAPI]
 public sealed class BTreeCodec : ICodec
 {
-    private const int MinMatch = 3;
-    private const int MaxMatch = 1028;
-    private const int WindowSize = 4096;
-    private const int HashBits = 12;
-    private const int HashSize = 1 << HashBits;
-    private const int HashMask = HashSize - 1;
+    private const int DefaultWindowSize = 4096;
+    private const int DefaultMinMatch = 3;
+    private const int DefaultMaxMatch = 1028;
+    private const int DefaultHashBits = 12;
+
+    private int WindowSize => _options?.WindowSize ?? DefaultWindowSize;
+    private int MinMatch => _options?.MinMatch ?? DefaultMinMatch;
+    private int MaxMatch => _options?.MaxMatch ?? DefaultMaxMatch;
+    private int HashBits => _options?.HashBits ?? DefaultHashBits;
+    private int HashSize => 1 << HashBits;
+    private int HashMask => HashSize - 1;
+
+    private EncodingOptions? _options;
 
     public CodecInfo About =>
         new()
@@ -39,16 +46,10 @@ public sealed class BTreeCodec : ICodec
             Version = "1.02",
         };
 
-    private readonly struct Match
+    private readonly struct Match(int length, int offset)
     {
-        public readonly int Length;
-        public readonly int Offset;
-
-        public Match(int length, int offset)
-        {
-            Length = length;
-            Offset = offset;
-        }
+        public readonly int Length = length;
+        public readonly int Offset = offset;
     }
 
     private struct EncodingContext
@@ -85,42 +86,111 @@ public sealed class BTreeCodec : ICodec
         state.BitsUsed = 0;
     }
 
-    private static Match FindLongestMatch(ReadOnlySpan<byte> source, EncodingContext context)
+    private bool CanFindMatch(ReadOnlySpan<byte> source, int inputPos)
     {
-        if (context.InputPos + MinMatch > source.Length)
+        return inputPos + MinMatch <= source.Length;
+    }
+
+    private int ComputeHash(ReadOnlySpan<byte> source, int pos)
+    {
+        return ((source[pos] << 8) | source[pos + 1]) & HashMask;
+    }
+
+    private (int Length, int Offset) FindBestMatch(
+        ReadOnlySpan<byte> source,
+        EncodingContext context,
+        int matchPos
+    )
+    {
+        var bestLength = 0;
+        var bestOffset = 0;
+        var candidatesChecked = 0;
+        var minPos = context.InputPos - WindowSize;
+
+        while (matchPos >= 0 && matchPos > minPos)
+        {
+            if (ShouldStopSearching(candidatesChecked))
+                break;
+
+            var matchLength = CountMatchingBytes(source, matchPos, context.InputPos, MaxMatch);
+            if (IsNewBestMatch(matchLength, bestLength))
+            {
+                bestLength = matchLength;
+                bestOffset = context.InputPos - matchPos;
+
+                if (!_options?.AggressiveMatching ?? false)
+                    break;
+            }
+
+            matchPos = context.ChainTable[matchPos & (WindowSize - 1)];
+            candidatesChecked++;
+        }
+
+        return (bestLength, bestOffset);
+    }
+
+    private bool ShouldStopSearching(int candidatesChecked)
+    {
+        return _options?.MaxCandidates > 0 && candidatesChecked >= _options.MaxCandidates;
+    }
+
+    private bool IsNewBestMatch(int matchLength, int bestLength)
+    {
+        return matchLength >= MinMatch && matchLength > bestLength;
+    }
+
+    private bool ShouldTryLazyMatching(int bestLength, int inputPos, int sourceLength)
+    {
+        return (_options?.LazyMatching ?? false)
+            && bestLength >= MinMatch
+            && inputPos + 1 < sourceLength;
+    }
+
+    private Match FindLongestMatch(ReadOnlySpan<byte> source, EncodingContext context)
+    {
+        if (!CanFindMatch(source, context.InputPos))
         {
             return new Match(0, 0);
         }
 
-        var hash = ((source[context.InputPos] << 8) | source[context.InputPos + 1]) & HashMask;
+        var hash = ComputeHash(source, context.InputPos);
         var matchPos = context.HashTable[hash];
+        var (bestLength, bestOffset) = FindBestMatch(source, context, matchPos);
 
-        var bestLength = 0;
-        var bestOffset = 0;
-
-        while (matchPos >= 0 && matchPos > context.InputPos - WindowSize)
+        if (ShouldTryLazyMatching(bestLength, context.InputPos, source.Length))
         {
-            var matchLength = CountMatchingBytes(source, matchPos, context.InputPos);
-
-            if (matchLength >= MinMatch && matchLength > bestLength)
+            var nextMatch = FindLongestMatchAt(source, context, context.InputPos + 1);
+            if (nextMatch.Length > bestLength + 1)
             {
-                bestLength = matchLength;
-                bestOffset = context.InputPos - matchPos;
+                context.InputPos++; // Skip current byte
+                return nextMatch;
             }
-
-            matchPos = context.ChainTable[matchPos & (WindowSize - 1)];
         }
 
-        UpdateTables(context, hash);
+        UpdateTables(context, hash, WindowSize);
         return new Match(bestLength, bestOffset);
     }
 
-    private static int CountMatchingBytes(ReadOnlySpan<byte> source, int matchPos, int currentPos)
+    private Match FindLongestMatchAt(ReadOnlySpan<byte> source, EncodingContext context, int pos)
+    {
+        var savedPos = context.InputPos;
+        context.InputPos = pos;
+        var match = FindLongestMatch(source, context);
+        context.InputPos = savedPos;
+        return match;
+    }
+
+    private static int CountMatchingBytes(
+        ReadOnlySpan<byte> source,
+        int matchPos,
+        int currentPos,
+        int maxMatch
+    )
     {
         var matchLength = 0;
         while (
             currentPos + matchLength < source.Length
-            && matchLength < MaxMatch
+            && matchLength < maxMatch
             && source[matchPos + matchLength] == source[currentPos + matchLength]
         )
         {
@@ -130,9 +200,9 @@ public sealed class BTreeCodec : ICodec
         return matchLength;
     }
 
-    private static void UpdateTables(EncodingContext context, int hash)
+    private static void UpdateTables(EncodingContext context, int hash, int windowSize)
     {
-        context.ChainTable[context.InputPos & (WindowSize - 1)] = context.HashTable[hash];
+        context.ChainTable[context.InputPos & (windowSize - 1)] = context.HashTable[hash];
         context.HashTable[hash] = context.InputPos;
     }
 
@@ -140,11 +210,12 @@ public sealed class BTreeCodec : ICodec
         Span<byte> compressedData,
         ref EncodingContext context,
         ref ControlByteState controlState,
-        Match match
+        Match match,
+        int minMatch
     )
     {
         controlState.Value |= (byte)(1 << controlState.BitsUsed);
-        var matchInfo = (ushort)((match.Offset << 4) | (match.Length - MinMatch));
+        var matchInfo = (ushort)((match.Offset << 4) | (match.Length - minMatch));
         if (!BitConverter.TryWriteBytes(compressedData.Slice(context.OutputPos, 2), matchInfo))
         {
             throw new InvalidOperationException("Failed to write match info.");
@@ -181,6 +252,42 @@ public sealed class BTreeCodec : ICodec
         {
             throw new InvalidOperationException("Failed to write compressed size.");
         }
+    }
+
+    private int EncodeInternal(Span<byte> compressedData, ReadOnlySpan<byte> source)
+    {
+        WriteHeader(compressedData, source.Length);
+
+        var context = new EncodingContext
+        {
+            HashTable = new int[HashSize],
+            ChainTable = new int[WindowSize],
+            OutputPos = CompressionConstants.HeaderSize,
+            InputPos = 0,
+        };
+
+        Array.Fill(context.HashTable, -1);
+
+        var controlState = new ControlByteState { Position = context.OutputPos++ };
+
+        while (context.InputPos < source.Length)
+        {
+            UpdateControlByte(compressedData, ref controlState);
+
+            var match = FindLongestMatch(source, context);
+
+            if (match.Length >= MinMatch)
+            {
+                WriteMatch(compressedData, ref context, ref controlState, match, MinMatch);
+            }
+            else
+            {
+                WriteLiteral(compressedData, source, ref context, ref controlState);
+            }
+        }
+
+        FinalizeEncoding(compressedData, controlState, context.OutputPos);
+        return context.OutputPos;
     }
 
     public bool IsCompressedData(ReadOnlySpan<byte> compressedData) =>
@@ -254,37 +361,14 @@ public sealed class BTreeCodec : ICodec
         EncodingOptions? options = null
     )
     {
-        WriteHeader(compressedData, source.Length);
-
-        var context = new EncodingContext
+        _options = options;
+        try
         {
-            HashTable = new int[HashSize],
-            ChainTable = new int[WindowSize],
-            OutputPos = CompressionConstants.HeaderSize,
-            InputPos = 0,
-        };
-
-        Array.Fill(context.HashTable, -1);
-
-        var controlState = new ControlByteState { Position = context.OutputPos++ };
-
-        while (context.InputPos < source.Length)
-        {
-            UpdateControlByte(compressedData, ref controlState);
-
-            var match = FindLongestMatch(source, context);
-
-            if (match.Length >= MinMatch)
-            {
-                WriteMatch(compressedData, ref context, ref controlState, match);
-            }
-            else
-            {
-                WriteLiteral(compressedData, source, ref context, ref controlState);
-            }
+            return EncodeInternal(compressedData, source);
         }
-
-        FinalizeEncoding(compressedData, controlState, context.OutputPos);
-        return context.OutputPos;
+        finally
+        {
+            _options = null;
+        }
     }
 }

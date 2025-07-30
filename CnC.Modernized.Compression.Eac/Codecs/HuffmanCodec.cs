@@ -24,6 +24,33 @@ namespace CnC.Modernized.Compression.Eac.Codecs;
 [PublicAPI]
 public sealed class HuffmanCodec : ICodec
 {
+    private const int DefaultSymbolCount = 256;
+    private const int DefaultMaxBitLength = 16;
+    private const int DefaultMinCodeLength = 4;
+
+    private EncodingOptions? _options;
+
+    private int SymbolCount => _options?.SymbolCount ?? DefaultSymbolCount;
+    private int MaxBitLength => _options?.MaxBitLength ?? DefaultMaxBitLength;
+    private int MinCodeLength => _options?.MinCodeLength ?? DefaultMinCodeLength;
+    private bool OptimizeTree => _options?.OptimizeTree ?? true;
+
+    private sealed class Node
+    {
+        public int Symbol;
+        public int Weight;
+        public Node? Left;
+        public Node? Right;
+    }
+
+    private sealed class HuffmanState(int symbolCount)
+    {
+        public readonly int[] Frequencies = new int[symbolCount];
+        public readonly Dictionary<int, string> Codes = new();
+
+        public Node? Root;
+    }
+
     private sealed class HuffmanNode(int symbol, int frequency)
     {
         public int Symbol { get; } = symbol;
@@ -38,12 +65,6 @@ public sealed class HuffmanCodec : ICodec
             Left = left;
             Right = right;
         }
-    }
-
-    private readonly struct HuffmanCode(ushort code, byte length)
-    {
-        public ushort Code { get; } = code;
-        public byte Length { get; } = length;
     }
 
     private ref struct BitReader(ReadOnlySpan<byte> data)
@@ -66,44 +87,6 @@ public sealed class HuffmanCodec : ICodec
             _bytePosition++;
 
             return result;
-        }
-    }
-
-    private ref struct BitWriter(Span<byte> data)
-    {
-        private readonly Span<byte> _data = data;
-
-        private byte _currentByte = 0;
-        private int _bitPosition = 0;
-        private int _bytePosition = 0;
-
-        public int BytesWritten => _bytePosition + (_bitPosition > 0 ? 1 : 0);
-
-        public void WriteBits(ushort bits, byte length)
-        {
-            for (var i = length - 1; i >= 0; i--)
-            {
-                var bit = (bits & (1 << i)) != 0;
-                _currentByte = (byte)(_currentByte | (bit ? 1 : 0) << (7 - _bitPosition));
-                _bitPosition++;
-
-                if (_bitPosition != 8)
-                {
-                    continue;
-                }
-
-                _data[_bytePosition++] = _currentByte;
-                _currentByte = 0;
-                _bitPosition = 0;
-            }
-        }
-
-        public void Flush()
-        {
-            if (_bitPosition > 0)
-            {
-                _data[_bytePosition] = _currentByte;
-            }
         }
     }
 
@@ -135,31 +118,181 @@ public sealed class HuffmanCodec : ICodec
         return priorityQueue.Dequeue();
     }
 
-    private static void GenerateHuffmanCodes(HuffmanNode root, HuffmanCode[] codes)
+    private void OptimizeCodes(Dictionary<int, string> codes)
     {
-        var stack = new Stack<(HuffmanNode Node, ushort Code, byte Length)>();
-        stack.Push((root, 0, 0));
+        foreach (var symbol in codes.Keys.ToList())
+        {
+            var code = codes[symbol];
+            if (code.Length < MinCodeLength)
+            {
+                codes[symbol] = code.PadRight(MinCodeLength, '0');
+            }
+        }
+    }
+
+    private static Node BuildTree(int[] frequencies)
+    {
+        var pq = new PriorityQueue<Node, int>();
+        for (int i = 0; i < frequencies.Length; i++)
+        {
+            if (frequencies[i] > 0)
+            {
+                pq.Enqueue(new Node { Symbol = i, Weight = frequencies[i] }, frequencies[i]);
+            }
+        }
+
+        if (pq.Count == 1)
+        {
+            var node = pq.Dequeue();
+            return new Node
+            {
+                Symbol = -1,
+                Weight = node.Weight,
+                Left = node,
+                Right = new Node { Symbol = -1, Weight = 0 },
+            };
+        }
+
+        while (pq.Count > 1)
+        {
+            var left = pq.Dequeue();
+            var right = pq.Dequeue();
+            var parent = new Node
+            {
+                Symbol = -1, // Internal nodes don't represent symbols
+                Weight = left.Weight + right.Weight,
+                Left = left,
+                Right = right,
+            };
+
+            pq.Enqueue(parent, parent.Weight);
+        }
+
+        return pq.Dequeue();
+    }
+
+    private void GenerateCodes(Node? root, Dictionary<int, string> codes)
+    {
+        if (root is null)
+        {
+            return;
+        }
+
+        var stack = new Stack<(Node Node, string Code)>();
+        stack.Push((root, ""));
 
         while (stack.Count > 0)
         {
-            (HuffmanNode node, ushort code, byte length) = stack.Pop();
-
-            if (node.IsLeaf)
+            (Node node, string code) = stack.Pop();
+            if (node.Symbol != -1)
             {
-                codes[node.Symbol] = new HuffmanCode(code, length);
+                if (code.Length > MaxBitLength)
+                {
+                    throw new InvalidOperationException(
+                        $"Huffman code exceeds maximum length of {MaxBitLength} bits"
+                    );
+                }
+
+                codes[node.Symbol] = code;
                 continue;
             }
 
-            if (node.Right is not null)
+            if (node.Right != null)
             {
-                stack.Push((node.Right, (ushort)(code << 1 | 1), (byte)(length + 1)));
+                stack.Push((node.Right, code + "1"));
             }
 
-            if (node.Left is not null)
+            if (node.Left != null)
             {
-                stack.Push((node.Left, (ushort)(code << 1), (byte)(length + 1)));
+                stack.Push((node.Left, code + "0"));
             }
         }
+    }
+
+    private static int WriteHeader(Span<byte> compressedData, int sourceLength, HuffmanState state)
+    {
+        CompressionConstants.Signatures.Huffman.CopyTo(compressedData);
+        if (!BitConverter.TryWriteBytes(compressedData[4..], sourceLength))
+        {
+            throw new InvalidOperationException(
+                "Failed to write source length to compressed data."
+            );
+        }
+
+        var pos = CompressionConstants.HeaderSize;
+        var symbolCount = state.Codes.Count;
+        if (!BitConverter.TryWriteBytes(compressedData[pos..], symbolCount))
+        {
+            throw new InvalidOperationException("Failed to write symbol count to compressed data.");
+        }
+
+        pos += sizeof(int);
+        foreach (var symbol in state.Codes.Keys.OrderBy(k => k))
+        {
+            compressedData[pos++] = (byte)symbol;
+            BitConverter.TryWriteBytes(compressedData[pos..], state.Frequencies[symbol]);
+            pos += sizeof(int);
+        }
+
+        return pos;
+    }
+
+    private static int EncodeData(
+        Span<byte> compressedData,
+        ReadOnlySpan<byte> source,
+        HuffmanState state,
+        int outputPos
+    )
+    {
+        var bitBuffer = 0;
+        var bitsInBuffer = 0;
+        foreach (var symbol in source)
+        {
+            var code = state.Codes[symbol];
+            foreach (var bit in code)
+            {
+                bitBuffer = (bitBuffer << 1) | (bit == '1' ? 1 : 0);
+                bitsInBuffer++;
+
+                if (bitsInBuffer != 8)
+                {
+                    continue;
+                }
+
+                compressedData[outputPos++] = (byte)bitBuffer;
+                bitBuffer = 0;
+                bitsInBuffer = 0;
+            }
+        }
+
+        if (bitsInBuffer > 0)
+        {
+            bitBuffer <<= (8 - bitsInBuffer);
+            compressedData[outputPos++] = (byte)bitBuffer;
+        }
+
+        BitConverter.TryWriteBytes(compressedData[8..], outputPos);
+        return outputPos;
+    }
+
+    private int EncodeInternal(Span<byte> compressedData, ReadOnlySpan<byte> source)
+    {
+        var state = new HuffmanState(SymbolCount);
+        foreach (var b in source)
+        {
+            state.Frequencies[b]++;
+        }
+
+        state.Root = BuildTree(state.Frequencies);
+        GenerateCodes(state.Root, state.Codes);
+        if (OptimizeTree)
+        {
+            OptimizeCodes(state.Codes);
+        }
+
+        var outputPos = WriteHeader(compressedData, source.Length, state);
+        outputPos = EncodeData(compressedData, source, state, outputPos);
+        return outputPos;
     }
 
     public CodecInfo About =>
@@ -206,7 +339,6 @@ public sealed class HuffmanCodec : ICodec
         var frequencyTableSize = compressedData[12];
         var frequencies = new int[CompressionConstants.MaxSymbols];
         var offset = 13;
-
         for (var i = 0; i < frequencyTableSize; i++)
         {
             var symbol = compressedData[offset++];
@@ -216,7 +348,6 @@ public sealed class HuffmanCodec : ICodec
         var treeRoot = BuildHuffmanTree(frequencies);
         var bitReader = new BitReader(compressedData[offset..]);
         var decodedCount = 0;
-
         while (decodedCount < uncompressedSize)
         {
             var node = treeRoot;
@@ -238,59 +369,14 @@ public sealed class HuffmanCodec : ICodec
         EncodingOptions? options = null
     )
     {
-        var frequencies = new int[CompressionConstants.MaxSymbols];
-        foreach (var @byte in source)
+        _options = options;
+        try
         {
-            frequencies[@byte]++;
+            return EncodeInternal(compressedData, source);
         }
-
-        var treeRoot = BuildHuffmanTree(frequencies);
-        var codes = new HuffmanCode[CompressionConstants.MaxSymbols];
-        GenerateHuffmanCodes(treeRoot, codes);
-
-        var offset = 0;
-        CompressionConstants.Signatures.Huffman.CopyTo(compressedData);
-        offset += 4;
-
-        if (!BitConverter.TryWriteBytes(compressedData[offset..], source.Length))
+        finally
         {
-            throw new InvalidOperationException("Unable to write the source bytes.");
+            _options = null;
         }
-
-        offset += 8;
-        var usedSymbols = frequencies.Count(@byte => @byte > 0);
-        compressedData[offset++] = (byte)usedSymbols;
-
-        for (var i = 0; i < frequencies.Length; i++)
-        {
-            if (frequencies[i] <= 0)
-            {
-                continue;
-            }
-
-            compressedData[offset++] = (byte)i;
-            if (!BitConverter.TryWriteBytes(compressedData[offset..], frequencies[i]))
-            {
-                throw new InvalidOperationException("Unable to write the source bytes.");
-            }
-
-            offset += 4;
-        }
-
-        var bitWriter = new BitWriter(compressedData[offset..]);
-        foreach (var @byte in source)
-        {
-            var code = codes[@byte];
-            bitWriter.WriteBits(code.Code, code.Length);
-        }
-
-        var totalSize = offset + bitWriter.BytesWritten;
-        if (!BitConverter.TryWriteBytes(compressedData[8..], totalSize))
-        {
-            throw new InvalidOperationException("Unable to write the source bytes.");
-        }
-
-        bitWriter.Flush();
-        return totalSize;
     }
 }
