@@ -155,7 +155,7 @@ public sealed class BTreeCodec : ICodec
 
         var hash = ComputeHash(source, context.InputPos);
         var matchPos = context.HashTable[hash];
-        var (bestLength, bestOffset) = FindBestMatch(source, context, matchPos);
+        (int bestLength, int bestOffset) = FindBestMatch(source, context, matchPos);
 
         if (ShouldTryLazyMatching(bestLength, context.InputPos, source.Length))
         {

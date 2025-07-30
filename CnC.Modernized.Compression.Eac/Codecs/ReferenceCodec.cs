@@ -121,7 +121,7 @@ public class ReferenceCodec : ICodec
         EncodingState state
     )
     {
-        var windowStart = Math.Max(0, state.InputPos - WindowSize);
+        var windowStart = int.Max(0, state.InputPos - WindowSize);
         var bestLength = 0;
         var bestOffset = 0;
 
@@ -142,7 +142,7 @@ public class ReferenceCodec : ICodec
     }
 
     private bool IsValidChainPosition(int chainPos, int inputPos, int chainLength) =>
-        chainPos >= Math.Max(0, inputPos - WindowSize) && chainLength < HashChainLength;
+        chainPos >= int.Max(0, inputPos - WindowSize) && chainLength < HashChainLength;
 
     private bool IsNewBestMatch(int length, int currentBest) =>
         length >= MinMatch && length > currentBest;
@@ -167,12 +167,8 @@ public class ReferenceCodec : ICodec
         }
 
         const int matchEncodingOverhead = 3;
-        if (matchLength + 1 <= matchEncodingOverhead)
-        {
-            return true;
-        }
-
-        return HasBetterFutureMatch(source, state, matchLength);
+        return matchLength + 1 <= matchEncodingOverhead
+            || HasBetterFutureMatch(source, state, matchLength);
     }
 
     private bool HasBetterFutureMatch(
@@ -282,7 +278,7 @@ public class ReferenceCodec : ICodec
             return false;
         }
 
-        var windowStart = Math.Max(0, pos - windowSize);
+        var windowStart = int.Max(0, pos - windowSize);
         for (var searchPos = windowStart; searchPos < pos; searchPos++)
         {
             if (CountMatchingBytes(source, searchPos, pos) >= minMatch)
@@ -307,7 +303,6 @@ public class ReferenceCodec : ICodec
     private int EncodeInternal(Span<byte> compressedData, ReadOnlySpan<byte> source)
     {
         WriteHeader(compressedData, source);
-
         if (EnableHashChaining)
         {
             _hashTable = new int[WindowSize];
@@ -316,7 +311,6 @@ public class ReferenceCodec : ICodec
         }
 
         var state = new EncodingState(compressedData);
-
         while (state.InputPos < source.Length)
         {
             if (TryFindMatch(source, state, out var match))
