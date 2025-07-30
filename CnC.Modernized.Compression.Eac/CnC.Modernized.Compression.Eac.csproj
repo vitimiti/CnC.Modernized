@@ -7,7 +7,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Title>CnC.Modernized.Sdl3</Title>
     <Authors>Victor Matia &lt;vmatir@outlook.com&gt;</Authors>
     <Description>A library implement the EAC compression system from the original games.</Description>

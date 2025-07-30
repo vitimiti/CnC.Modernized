@@ -21,7 +21,6 @@ namespace CnC.Modernized.Compression.Eac.Codecs;
 
 internal static class CompressionConstants
 {
-    public const int MaxBits = 16;
     public const int MaxSymbols = 256;
     public const int HeaderSize = 12;
 
