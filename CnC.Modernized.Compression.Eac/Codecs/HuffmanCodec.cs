@@ -22,7 +22,7 @@ using JetBrains.Annotations;
 namespace CnC.Modernized.Compression.Eac.Codecs;
 
 [PublicAPI]
-public class HuffmanCodec : ICodec
+public sealed class HuffmanCodec : ICodec
 {
     private sealed class HuffmanNode(int symbol, int frequency)
     {
