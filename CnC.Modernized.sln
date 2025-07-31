@@ -4,6 +4,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CnC.Modernized.Sdl3", "CnC.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CnC.Modernized.GeneralsAndZeroHour.Compression.Eac", "CnC.Modernized.GeneralsAndZeroHour.Compression.Eac\CnC.Modernized.GeneralsAndZeroHour.Compression.Eac.csproj", "{1E1F7574-160D-460D-94B0-7357B9B26486}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NativeInterop", "NativeInterop", "{2C694719-91A5-4BB6-BD09-6322A9D1832C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GeneralsAndZeroHour", "GeneralsAndZeroHour", "{9B02533D-0823-48FC-89A2-4D6079C23EB9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Compression", "Compression", "{644E1D4D-1FF1-4274-9F35-9734719C3DF9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +24,10 @@ Global
 		{1E1F7574-160D-460D-94B0-7357B9B26486}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E1F7574-160D-460D-94B0-7357B9B26486}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E1F7574-160D-460D-94B0-7357B9B26486}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7CD01CE8-3106-4B99-8BE2-5CAEF43822FE} = {2C694719-91A5-4BB6-BD09-6322A9D1832C}
+		{644E1D4D-1FF1-4274-9F35-9734719C3DF9} = {9B02533D-0823-48FC-89A2-4D6079C23EB9}
+		{1E1F7574-160D-460D-94B0-7357B9B26486} = {644E1D4D-1FF1-4274-9F35-9734719C3DF9}
 	EndGlobalSection
 EndGlobal
