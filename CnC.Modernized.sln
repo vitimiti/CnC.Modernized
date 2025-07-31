@@ -4,6 +4,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NativeInterop", "NativeInte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CnC.Modernized.NativeInterop.Sdl3", "NativeInterop\CnC.Modernized.NativeInterop.Sdl3\CnC.Modernized.NativeInterop.Sdl3.csproj", "{96851360-56A9-47D6-9873-184800157300}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GeneralsAndZeroHour", "GeneralsAndZeroHour", "{567FE7D8-C04F-40ED-99FB-A5DD1EFC5109}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Compression", "Compression", "{B094B3C6-D301-4CCF-830A-B2C85AA4507D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CnC.Modernized.GeneralsAndZeroHour.Compression.Eac", "GeneralsAndZeroHour\Compression\CnC.Modernized.GeneralsAndZeroHour.Compression.Eac\CnC.Modernized.GeneralsAndZeroHour.Compression.Eac.csproj", "{61C8EF56-3868-4143-AC30-6ECA7C35232D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,8 +20,14 @@ Global
 		{96851360-56A9-47D6-9873-184800157300}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96851360-56A9-47D6-9873-184800157300}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96851360-56A9-47D6-9873-184800157300}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61C8EF56-3868-4143-AC30-6ECA7C35232D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61C8EF56-3868-4143-AC30-6ECA7C35232D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61C8EF56-3868-4143-AC30-6ECA7C35232D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61C8EF56-3868-4143-AC30-6ECA7C35232D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{96851360-56A9-47D6-9873-184800157300} = {2C694719-91A5-4BB6-BD09-6322A9D1832C}
+		{B094B3C6-D301-4CCF-830A-B2C85AA4507D} = {567FE7D8-C04F-40ED-99FB-A5DD1EFC5109}
+		{61C8EF56-3868-4143-AC30-6ECA7C35232D} = {B094B3C6-D301-4CCF-830A-B2C85AA4507D}
 	EndGlobalSection
 EndGlobal
