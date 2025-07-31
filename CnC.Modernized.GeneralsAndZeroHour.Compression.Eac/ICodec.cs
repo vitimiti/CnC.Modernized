@@ -19,7 +19,7 @@
 
 using JetBrains.Annotations;
 
-namespace CnC.Modernized.Compression.Eac;
+namespace CnC.Modernized.GeneralsAndZeroHour.Compression.Eac;
 
 [PublicAPI]
 public interface ICodec

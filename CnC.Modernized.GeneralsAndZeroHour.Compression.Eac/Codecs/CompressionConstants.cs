@@ -17,7 +17,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace CnC.Modernized.Compression.Eac.Codecs;
+namespace CnC.Modernized.GeneralsAndZeroHour.Compression.Eac.Codecs;
 
 internal static class CompressionConstants
 {

@@ -19,7 +19,7 @@
 
 using JetBrains.Annotations;
 
-namespace CnC.Modernized.Compression.Eac.Codecs;
+namespace CnC.Modernized.GeneralsAndZeroHour.Compression.Eac.Codecs;
 
 [PublicAPI]
 public sealed class BTreeCodec : ICodec

@@ -19,16 +19,12 @@
 
 using JetBrains.Annotations;
 
-namespace CnC.Modernized.Compression.Eac.Exceptions;
+namespace CnC.Modernized.GeneralsAndZeroHour.Compression.Eac;
 
 [PublicAPI]
-public class InvalidDataException : Exception
+public record CodecInfo
 {
-    public InvalidDataException() { }
-
-    public InvalidDataException(string? message)
-        : base(message) { }
-
-    public InvalidDataException(string? message, Exception? innerException)
-        : base(message, innerException) { }
+    public required string Name { get; init; }
+    public required string Description { get; init; }
+    public required string Version { get; init; }
 }
