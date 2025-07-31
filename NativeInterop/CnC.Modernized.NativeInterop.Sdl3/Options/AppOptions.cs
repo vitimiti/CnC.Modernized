@@ -17,26 +17,17 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using CnC.Modernized.Sdl3.Imports.CustomMarshallers;
+using System.Text.Json;
+using JetBrains.Annotations;
 
-namespace CnC.Modernized.Sdl3.Imports;
+namespace CnC.Modernized.NativeInterop.Sdl3.Options;
 
-[SuppressMessage(
-    "ReSharper",
-    "InconsistentNaming",
-    Justification = "Respect the native SDL3 naming conventions."
-)]
-internal static partial class SDL3
+[PublicAPI]
+public class AppOptions
 {
-    [LibraryImport(
-        nameof(SDL3),
-        EntryPoint = nameof(SDL_GetError),
-        StringMarshalling = StringMarshalling.Custom,
-        StringMarshallingCustomType = typeof(SdlOwnedUtf8StringMarshaller)
-    )]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial string SDL_GetError();
+    public string? AppName { get; set; }
+    public Version? AppVersion { get; set; }
+    public string? AppIdentifier { get; set; }
+
+    public override string ToString() => $"{nameof(AppOptions)} = {JsonSerializer.Serialize(this)}";
 }

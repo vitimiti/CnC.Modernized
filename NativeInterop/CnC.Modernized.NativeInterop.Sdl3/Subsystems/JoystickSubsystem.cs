@@ -1,13 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
-using CnC.Modernized.Sdl3.Logging;
+using CnC.Modernized.NativeInterop.Sdl3.Logging;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
-using static CnC.Modernized.Sdl3.Imports.SDL3;
+using static CnC.Modernized.NativeInterop.Sdl3.Imports.SDL3;
 
-namespace CnC.Modernized.Sdl3.Subsystems;
+namespace CnC.Modernized.NativeInterop.Sdl3.Subsystems;
 
 [PublicAPI]
-public class GamepadSubsystem : IDisposable
+public class JoystickSubsystem : IDisposable
 {
     private readonly ILogger _logger;
 
@@ -18,27 +18,27 @@ public class GamepadSubsystem : IDisposable
     )]
     private readonly App _app;
 
-    internal GamepadSubsystem(ILogger logger, App app)
+    internal JoystickSubsystem(ILogger logger, App app)
     {
         _logger = logger;
         _app = app;
 
-        if (!SDL_InitSubSystem(SDL_INIT_GAMEPAD))
+        if (!SDL_InitSubSystem(SDL_INIT_JOYSTICK))
         {
             SubsystemsLogging.UnableToInitializeSubsystem(
                 _logger,
-                nameof(GamepadSubsystem),
+                nameof(JoystickSubsystem),
                 SDL_GetError()
             );
         }
 
-        SubsystemsLogging.SubsystemInitialized(_logger, nameof(GamepadSubsystem));
+        SubsystemsLogging.SubsystemInitialized(_logger, nameof(JoystickSubsystem));
     }
 
     private void ReleaseUnmanagedResources()
     {
-        SDL_QuitSubSystem(SDL_INIT_GAMEPAD);
-        SubsystemsLogging.SubsystemTerminated(_logger, nameof(GamepadSubsystem));
+        SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+        SubsystemsLogging.SubsystemTerminated(_logger, nameof(JoystickSubsystem));
     }
 
     protected virtual void Dispose(bool disposing)
@@ -56,5 +56,5 @@ public class GamepadSubsystem : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    ~GamepadSubsystem() => Dispose(disposing: false);
+    ~JoystickSubsystem() => Dispose(disposing: false);
 }

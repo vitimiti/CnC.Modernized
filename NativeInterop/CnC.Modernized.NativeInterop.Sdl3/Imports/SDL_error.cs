@@ -18,20 +18,12 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using CnC.Modernized.NativeInterop.Sdl3.Imports.CustomMarshallers;
 
-namespace CnC.Modernized.Sdl3.Imports;
+namespace CnC.Modernized.NativeInterop.Sdl3.Imports;
 
-[SuppressMessage(
-    "csharpsquid",
-    "S101:Types should be named in PascalCase",
-    Justification = "Respect the native SDL3 naming conventions."
-)]
-[SuppressMessage(
-    "csharpsquid",
-    "S2342:Enumeration types should comply with a naming convention",
-    Justification = "Respect the native SDL3 naming conventions."
-)]
 [SuppressMessage(
     "ReSharper",
     "InconsistentNaming",
@@ -39,24 +31,12 @@ namespace CnC.Modernized.Sdl3.Imports;
 )]
 internal static partial class SDL3
 {
-    private static KeyValuePair<string, bool>[] LibraryNames =>
-        [
-            new("SDL3.dll", OperatingSystem.IsWindows()),
-            new("libSDL3.so", OperatingSystem.IsLinux()),
-        ];
-
-    static SDL3() =>
-        NativeLibrary.SetDllImportResolver(
-            typeof(SDL3).Assembly,
-            (name, assembly, path) =>
-                NativeLibrary.Load(
-                    name switch
-                    {
-                        nameof(SDL3) => LibraryNames.FirstOrDefault(pair => pair.Value).Key ?? name,
-                        _ => name,
-                    },
-                    assembly,
-                    path
-                )
-        );
+    [LibraryImport(
+        nameof(SDL3),
+        EntryPoint = nameof(SDL_GetError),
+        StringMarshalling = StringMarshalling.Custom,
+        StringMarshallingCustomType = typeof(SdlOwnedUtf8StringMarshaller)
+    )]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    public static partial string SDL_GetError();
 }

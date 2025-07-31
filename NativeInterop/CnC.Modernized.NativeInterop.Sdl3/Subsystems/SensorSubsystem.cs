@@ -1,10 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
-using CnC.Modernized.Sdl3.Logging;
+using CnC.Modernized.NativeInterop.Sdl3.Logging;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
-using static CnC.Modernized.Sdl3.Imports.SDL3;
+using static CnC.Modernized.NativeInterop.Sdl3.Imports.SDL3;
 
-namespace CnC.Modernized.Sdl3.Subsystems;
+namespace CnC.Modernized.NativeInterop.Sdl3.Subsystems;
 
 [PublicAPI]
 public class SensorSubsystem : IDisposable

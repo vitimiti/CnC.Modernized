@@ -17,14 +17,14 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using CnC.Modernized.Sdl3.Logging;
-using CnC.Modernized.Sdl3.Options;
-using CnC.Modernized.Sdl3.Subsystems;
+using CnC.Modernized.NativeInterop.Sdl3.Logging;
+using CnC.Modernized.NativeInterop.Sdl3.Options;
+using CnC.Modernized.NativeInterop.Sdl3.Subsystems;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
-using static CnC.Modernized.Sdl3.Imports.SDL3;
+using static CnC.Modernized.NativeInterop.Sdl3.Imports.SDL3;
 
-namespace CnC.Modernized.Sdl3;
+namespace CnC.Modernized.NativeInterop.Sdl3;
 
 [PublicAPI]
 public class App : IDisposable

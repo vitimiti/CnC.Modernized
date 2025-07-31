@@ -1,13 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
-using CnC.Modernized.Sdl3.Logging;
+using CnC.Modernized.NativeInterop.Sdl3.Logging;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
-using static CnC.Modernized.Sdl3.Imports.SDL3;
+using static CnC.Modernized.NativeInterop.Sdl3.Imports.SDL3;
 
-namespace CnC.Modernized.Sdl3.Subsystems;
+namespace CnC.Modernized.NativeInterop.Sdl3.Subsystems;
 
 [PublicAPI]
-public class HapticSubsystem : IDisposable
+public class VideoSubsystem : IDisposable
 {
     private readonly ILogger _logger;
 
@@ -18,27 +18,27 @@ public class HapticSubsystem : IDisposable
     )]
     private readonly App _app;
 
-    internal HapticSubsystem(ILogger logger, App app)
+    internal VideoSubsystem(ILogger logger, App app)
     {
         _logger = logger;
         _app = app;
 
-        if (!SDL_InitSubSystem(SDL_INIT_HAPTIC))
+        if (!SDL_InitSubSystem(SDL_INIT_VIDEO))
         {
             SubsystemsLogging.UnableToInitializeSubsystem(
                 _logger,
-                nameof(HapticSubsystem),
+                nameof(VideoSubsystem),
                 SDL_GetError()
             );
         }
 
-        SubsystemsLogging.SubsystemInitialized(_logger, nameof(HapticSubsystem));
+        SubsystemsLogging.SubsystemInitialized(_logger, nameof(VideoSubsystem));
     }
 
     private void ReleaseUnmanagedResources()
     {
-        SDL_QuitSubSystem(SDL_INIT_HAPTIC);
-        SubsystemsLogging.SubsystemTerminated(_logger, nameof(HapticSubsystem));
+        SDL_QuitSubSystem(SDL_INIT_VIDEO);
+        SubsystemsLogging.SubsystemTerminated(_logger, nameof(VideoSubsystem));
     }
 
     protected virtual void Dispose(bool disposing)
@@ -56,5 +56,5 @@ public class HapticSubsystem : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    ~HapticSubsystem() => Dispose(disposing: false);
+    ~VideoSubsystem() => Dispose(disposing: false);
 }

@@ -22,7 +22,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace CnC.Modernized.Sdl3.Imports;
+namespace CnC.Modernized.NativeInterop.Sdl3.Imports;
 
 [SuppressMessage(
     "ReSharper",

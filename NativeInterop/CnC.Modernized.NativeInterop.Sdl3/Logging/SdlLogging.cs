@@ -19,7 +19,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace CnC.Modernized.Sdl3.Logging;
+namespace CnC.Modernized.NativeInterop.Sdl3.Logging;
 
 internal static partial class SdlLogging
 {

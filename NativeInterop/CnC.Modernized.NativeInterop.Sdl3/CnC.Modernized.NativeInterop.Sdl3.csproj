@@ -8,7 +8,7 @@
   <PropertyGroup>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>0.3.0-alpha</Version>
-    <Title>CnC.Modernized.Sdl3</Title>
+    <Title>CnC.Modernized.NativeInterop.Sdl3</Title>
     <Authors>Victor Matia &lt;vmatir@outlook.com&gt;</Authors>
     <Description>A library to safely import SDL3 for use with the CnC.Modernized projects.</Description>
     <PackageProjectUrl>https://github.com/vitimiti/CnC.Modernized.git</PackageProjectUrl>
@@ -19,11 +19,11 @@
     <PackageOutputPath>..\Packages</PackageOutputPath>
     <PackageReadmeFile>docs\README.md</PackageReadmeFile>
   </PropertyGroup>
-  <Import Project="..\Targets\CnC.Modernized.Common.targets" />
+  <Import Project="..\..\Targets\CnC.Modernized.Common.targets" />
   <ItemGroup>
     <None Include=".\README.md" Pack="true" PackagePath="docs\README.md" />
-    <None Include="..\CODE_OF_CONDUCT.md" Pack="true" PackagePath="docs\CODE_OF_CONDUCT.md" />
-    <None Include="..\LICENSE.md" Pack="true" PackagePath="docs\LICENSE.md" />
+    <None Include="..\..\CODE_OF_CONDUCT.md" Pack="true" PackagePath="docs\CODE_OF_CONDUCT.md" />
+    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="docs\LICENSE.md" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.7" />

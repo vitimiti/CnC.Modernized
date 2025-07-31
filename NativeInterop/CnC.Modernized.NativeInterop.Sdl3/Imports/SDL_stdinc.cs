@@ -17,40 +17,24 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Runtime.InteropServices.Marshalling;
-using static CnC.Modernized.Sdl3.Imports.SDL3;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
-namespace CnC.Modernized.Sdl3.Imports.CustomMarshallers;
+namespace CnC.Modernized.NativeInterop.Sdl3.Imports;
 
-[CustomMarshaller(typeof(string), MarshalMode.ManagedToUnmanagedOut, typeof(ManagedToUnmanagedOut))]
-internal static class SdlOwnedUtf8StringMarshaller
+[SuppressMessage(
+    "ReSharper",
+    "InconsistentNaming",
+    Justification = "Respect the native SDL3 naming conventions."
+)]
+internal static partial class SDL3
 {
-    public unsafe ref struct ManagedToUnmanagedOut
-    {
-        private byte* _unmanaged;
-        private string? _managed;
+    [LibraryImport(nameof(SDL3), EntryPoint = nameof(SDL_free))]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    public static unsafe partial void SDL_free(void* mem);
 
-        public void FromUnmanaged(byte* unmanaged)
-        {
-            if (unmanaged is null)
-            {
-                _unmanaged = null;
-                _managed = null;
-                return;
-            }
-
-            _unmanaged = SDL_strdup(unmanaged);
-            _managed = Utf8StringMarshaller.ConvertToManaged(_unmanaged);
-        }
-
-        public string? ToManaged() => _managed;
-
-        public void Free()
-        {
-            if (_unmanaged is not null)
-            {
-                SDL_free(_unmanaged);
-            }
-        }
-    }
+    [LibraryImport(nameof(SDL3), EntryPoint = nameof(SDL_strdup))]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    public static unsafe partial byte* SDL_strdup(byte* str);
 }

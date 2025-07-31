@@ -21,7 +21,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace CnC.Modernized.Sdl3.Imports;
+namespace CnC.Modernized.NativeInterop.Sdl3.Imports;
 
 [SuppressMessage(
     "ReSharper",

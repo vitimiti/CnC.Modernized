@@ -1,13 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
-using CnC.Modernized.Sdl3.Logging;
+using CnC.Modernized.NativeInterop.Sdl3.Logging;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
-using static CnC.Modernized.Sdl3.Imports.SDL3;
+using static CnC.Modernized.NativeInterop.Sdl3.Imports.SDL3;
 
-namespace CnC.Modernized.Sdl3.Subsystems;
+namespace CnC.Modernized.NativeInterop.Sdl3.Subsystems;
 
 [PublicAPI]
-public class AudioSubsystem : IDisposable
+public class CameraSubsystem : IDisposable
 {
     private readonly ILogger _logger;
 
@@ -18,27 +18,27 @@ public class AudioSubsystem : IDisposable
     )]
     private readonly App _app;
 
-    internal AudioSubsystem(ILogger logger, App app)
+    internal CameraSubsystem(ILogger logger, App app)
     {
         _logger = logger;
         _app = app;
 
-        if (!SDL_InitSubSystem(SDL_INIT_AUDIO))
+        if (!SDL_InitSubSystem(SDL_INIT_CAMERA))
         {
             SubsystemsLogging.UnableToInitializeSubsystem(
                 _logger,
-                nameof(AudioSubsystem),
+                nameof(CameraSubsystem),
                 SDL_GetError()
             );
         }
 
-        SubsystemsLogging.SubsystemInitialized(_logger, nameof(AudioSubsystem));
+        SubsystemsLogging.SubsystemInitialized(_logger, nameof(CameraSubsystem));
     }
 
     private void ReleaseUnmanagedResources()
     {
-        SDL_QuitSubSystem(SDL_INIT_AUDIO);
-        SubsystemsLogging.SubsystemTerminated(_logger, nameof(AudioSubsystem));
+        SDL_QuitSubSystem(SDL_INIT_CAMERA);
+        SubsystemsLogging.SubsystemTerminated(_logger, nameof(CameraSubsystem));
     }
 
     protected virtual void Dispose(bool disposing)
@@ -56,5 +56,5 @@ public class AudioSubsystem : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    ~AudioSubsystem() => Dispose(disposing: false);
+    ~CameraSubsystem() => Dispose(disposing: false);
 }
