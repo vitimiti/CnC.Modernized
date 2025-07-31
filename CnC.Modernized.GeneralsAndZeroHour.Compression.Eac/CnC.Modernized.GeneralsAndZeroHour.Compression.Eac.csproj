@@ -8,7 +8,7 @@
   <PropertyGroup>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.1.2</Version>
-    <Title>CnC.Modernized.Sdl3</Title>
+    <Title>CnC.Modernized.GeneralsAndZeroHour.Compression.Eac</Title>
     <Authors>Victor Matia &lt;vmatir@outlook.com&gt;</Authors>
     <Description>A library implement the EAC compression system from the original games.</Description>
     <PackageProjectUrl>https://github.com/vitimiti/CnC.Modernized.git</PackageProjectUrl>
