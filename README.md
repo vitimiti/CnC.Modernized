@@ -17,6 +17,11 @@ of the original code.
 
 ## Projects
 
+### CnC.Modernized.GeneralsAndZeroHour.Compression.Eac
+
+An implementation of the original EAC compression algorithms and codecs from the C&C Generals and Zero Hour games. See
+its [readme](CnC.Modernized.GeneralsAndZeroHour.Compression.Eac/README.md) for more information.
+
 ### CnC.Modernized.Sdl3
 
 A safe and managed library that imports SDL3 for use with the CnC.Modernized projects. See
