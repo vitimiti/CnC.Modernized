@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CnC.Modernized.Sdl3", "CnC.Modernized.Sdl3\CnC.Modernized.Sdl3.csproj", "{7CD01CE8-3106-4B99-8BE2-5CAEF43822FE}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NativeInterop", "NativeInterop", "{2C694719-91A5-4BB6-BD09-6322A9D1832C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CnC.Modernized.Sdl3", "NativeInterop\CnC.Modernized.Sdl3.csproj", "{AE7103FD-A2D0-4C74-99D8-72735D45AE63}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -10,12 +10,12 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7CD01CE8-3106-4B99-8BE2-5CAEF43822FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7CD01CE8-3106-4B99-8BE2-5CAEF43822FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7CD01CE8-3106-4B99-8BE2-5CAEF43822FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7CD01CE8-3106-4B99-8BE2-5CAEF43822FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE7103FD-A2D0-4C74-99D8-72735D45AE63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE7103FD-A2D0-4C74-99D8-72735D45AE63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE7103FD-A2D0-4C74-99D8-72735D45AE63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE7103FD-A2D0-4C74-99D8-72735D45AE63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{7CD01CE8-3106-4B99-8BE2-5CAEF43822FE} = {2C694719-91A5-4BB6-BD09-6322A9D1832C}
+		{AE7103FD-A2D0-4C74-99D8-72735D45AE63} = {2C694719-91A5-4BB6-BD09-6322A9D1832C}
 	EndGlobalSection
 EndGlobal
